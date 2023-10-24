@@ -1,18 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.tree import DecisionTreeRegressor as dtr
-from sklearn.tree import DecisionTreeClassifier as dtc
 from sklearn.tree import plot_tree
-from sklearn.metrics import accuracy_score
-from sklearn.ensemble import AdaBoostClassifier as abc
 from sklearn.metrics import r2_score
-import yellowbrick as yb
-from io import StringIO
-from sklearn.tree import export_graphviz
-import pydotplus
+from sklearn.ensemble import RandomForestRegressor as rfr
+from sklearn.svm import SVR
+from yellowbrick.regressor import ResidualsPlot
+
+
 
 pd.options.display.width = None
 pd.options.display.max_columns = None
@@ -64,7 +63,8 @@ def handleOutlierValues(dframe):
     print("-" * 10, "Max", "-" * 10)
     print(dframe.max(numeric_only=True))
 
-    dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 1000000)]
+    # dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 1000000)]
+    dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 100000)]
     dframe = dframe[(dframe['Mileage'] >= 0) & (dframe['Mileage'] <= 500000)]
     dframe = dframe[(dframe['Engine volume'] >= 0) & (dframe['Engine volume'] <= 4.5)]
 
@@ -115,8 +115,8 @@ def prepareData(dframe):
     return dframe, XTrain, XTest, yTrain, yYest
 
 
-def trainDecisionTree(dframe, Xtrain, Xtest, yTrain, yTest):
-    treeModel = dtr(max_depth=5, min_samples_split=2, random_state=71)
+def trainDecisionTree(Xtrain, Xtest, yTrain, yTest):
+    treeModel = dtr(max_depth=4, min_samples_split=2, random_state=71)
     treeModel.fit(Xtrain, yTrain)
 
     y_pred_train = treeModel.predict(Xtrain)
@@ -127,13 +127,59 @@ def trainDecisionTree(dframe, Xtrain, Xtest, yTrain, yTest):
     print("R^2 score on train set: {:.3f}".format(r2_train))
     print("R^2 score on test set: {:.3f}".format(r2_test))
 
-    plt.figure(dpi=140, figsize=(16, 10))
-    plot_tree(treeModel, filled=True, rounded=True, max_depth=3, feature_names=dframe.columns)
-    plt.show()
+    # plt.figure(dpi=170, figsize=(16, 10))
+    # plot_tree(treeModel, filled=True, rounded=True, max_depth=4, feature_names=Xtrain.columns)
+    # plt.show()
+
+    visualizer = ResidualsPlot(treeModel)
+    visualizer.fit(Xtrain, np.array(yTrain).ravel())
+    visualizer.show()
+
     return None
 
+def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
+    forestModel = rfr(n_estimators=100, max_depth=4, min_samples_split=2, random_state=71)
+    forestModel.fit(Xtrain, yTrain)
+
+    y_pred_train = forestModel.predict(Xtrain)
+    y_pred_test = forestModel.predict(Xtest)
+    r2_train = r2_score(yTrain, y_pred_train)
+    r2_test = r2_score(yTest, y_pred_test)
+
+    print("R^2 score on train set: {:.3f}".format(r2_train))
+    print("R^2 score on test set: {:.3f}".format(r2_test))
+
+    # Visualize top 6 feature importance
+    feature_importances = forestModel.feature_importances_
+    sorted_idx = feature_importances.argsort()[-6:]
+    y_ticks = np.arange(0, len(sorted_idx))
+    fig, ax = plt.subplots()
+    ax.barh(y_ticks, feature_importances[sorted_idx])
+    ax.set_yticklabels(Xtrain.columns[sorted_idx])
+    ax.set_yticks(y_ticks)
+    ax.set_title("Random Forest Feature Importances (Top 6)")
+    plt.show()
+
+    return None
+
+
+def trainSVM(Xtrain, Xtest, yTrain, yTest):
+    svmModel = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    svmModel.fit(Xtrain, yTrain)
+
+    y_pred_train = svmModel.predict(Xtrain)
+    y_pred_test = svmModel.predict(Xtest)
+    r2_train = r2_score(yTrain, y_pred_train)
+    r2_test = r2_score(yTest, y_pred_test)
+
+    print("R^2 score on train set: {:.3f}".format(r2_train))
+    print("R^2 score on test set: {:.3f}".format(r2_test))
+
+    return None
 
 # Results --------------------------------------------------------------------------------------------------------------
 df, X_train, X_test, y_train, y_test = prepareData(df)
 
-trainDecisionTree(df, X_train, X_test, y_train, y_test)
+trainDecisionTree(X_train, X_test, y_train, y_test)
+# trainEnsembleModels(X_train, X_test, y_train, y_test)
+# trainSVM(X_train, X_test, y_train, y_test)
