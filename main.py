@@ -64,7 +64,7 @@ def handleOutlierValues(dframe):
     print(dframe.max(numeric_only=True))
 
     # dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 1000000)]
-    dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 100000)]
+    dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 200000)]
     dframe = dframe[(dframe['Mileage'] >= 0) & (dframe['Mileage'] <= 500000)]
     dframe = dframe[(dframe['Engine volume'] >= 0) & (dframe['Engine volume'] <= 4.5)]
 
