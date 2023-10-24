@@ -3,6 +3,16 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.tree import DecisionTreeRegressor as dtr
+from sklearn.tree import DecisionTreeClassifier as dtc
+from sklearn.tree import plot_tree
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import AdaBoostClassifier as abc
+from sklearn.metrics import r2_score
+import yellowbrick as yb
+from io import StringIO
+from sklearn.tree import export_graphviz
+import pydotplus
 
 pd.options.display.width = None
 pd.options.display.max_columns = None
@@ -78,13 +88,16 @@ def handleCategoricalValues(dframe):
 
 def createTrainTestSplit(dframe):
     X = dframe.drop(['Price'], axis=1)
-    y = dframe['Price']
+    y = dframe[['Price']]
 
-    XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.2, random_state=42)
+    XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.1, random_state=42)
 
     minMaxScaler = MinMaxScaler()
     XTrain = minMaxScaler.fit_transform(XTrain)
     XTest = minMaxScaler.transform(XTest)
+
+    XTrain = pd.DataFrame(XTrain, columns=X.columns)
+    XTest = pd.DataFrame(XTest, columns=X.columns)
 
     return XTrain, XTest, yTrain, yTest
 
@@ -102,5 +115,25 @@ def prepareData(dframe):
     return dframe, XTrain, XTest, yTrain, yYest
 
 
+def trainDecisionTree(dframe, Xtrain, Xtest, yTrain, yTest):
+    treeModel = dtr(max_depth=5, min_samples_split=2, random_state=71)
+    treeModel.fit(Xtrain, yTrain)
+
+    y_pred_train = treeModel.predict(Xtrain)
+    y_pred_test = treeModel.predict(Xtest)
+    r2_train = r2_score(yTrain, y_pred_train)
+    r2_test = r2_score(yTest, y_pred_test)
+
+    print("R^2 score on train set: {:.3f}".format(r2_train))
+    print("R^2 score on test set: {:.3f}".format(r2_test))
+
+    plt.figure(dpi=140, figsize=(16, 10))
+    plot_tree(treeModel, filled=True, rounded=True, max_depth=3, feature_names=dframe.columns)
+    plt.show()
+    return None
+
+
 # Results --------------------------------------------------------------------------------------------------------------
 df, X_train, X_test, y_train, y_test = prepareData(df)
+
+trainDecisionTree(df, X_train, X_test, y_train, y_test)
