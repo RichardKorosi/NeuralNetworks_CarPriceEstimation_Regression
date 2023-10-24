@@ -160,6 +160,10 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
     ax.set_title("Random Forest Feature Importances (Top 6)")
     plt.show()
 
+    visualizer = ResidualsPlot(forestModel)
+    visualizer.fit(Xtrain, np.array(yTrain).ravel())
+    visualizer.show()
+
     return None
 
 
@@ -180,6 +184,6 @@ def trainSVM(Xtrain, Xtest, yTrain, yTest):
 # Results --------------------------------------------------------------------------------------------------------------
 df, X_train, X_test, y_train, y_test = prepareData(df)
 
-trainDecisionTree(X_train, X_test, y_train, y_test)
-# trainEnsembleModels(X_train, X_test, y_train, y_test)
+# trainDecisionTree(X_train, X_test, y_train, y_test)
+trainEnsembleModels(X_train, X_test, y_train, y_test)
 # trainSVM(X_train, X_test, y_train, y_test)
