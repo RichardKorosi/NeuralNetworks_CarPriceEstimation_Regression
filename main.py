@@ -162,7 +162,7 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
 
 
 def trainSVM(Xtrain, Xtest, yTrain, yTest):
-    svmModel = SVR(kernel='rbf', C=200, gamma=0.1)
+    svmModel = SVR(kernel='rbf', C=1000000, gamma=0.1)
     svmModel.fit(Xtrain, yTrain)
 
     y_pred_train = svmModel.predict(Xtrain)
@@ -173,7 +173,7 @@ def trainSVM(Xtrain, Xtest, yTrain, yTest):
     print("R^2 score on train set: {:.3f}".format(r2_train))
     print("R^2 score on test set: {:.3f}".format(r2_test))
 
-    drawResidualsPlot(svmModel, Xtrain, yTrain)
+    # drawResidualsPlot(svmModel, Xtrain, yTrain)
     return None
 
 
