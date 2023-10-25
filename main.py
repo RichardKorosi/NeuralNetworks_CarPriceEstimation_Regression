@@ -124,13 +124,17 @@ def trainDecisionTree(Xtrain, Xtest, yTrain, yTest):
     print("R^2 score on train set: {:.3f}".format(r2_train))
     print("R^2 score on test set: {:.3f}".format(r2_test))
 
+    drawTreePlot(treeModel, Xtrain)
+    drawResidualsPlot(treeModel, Xtrain, yTrain)
+    drawTop6FeatureImportance(treeModel, Xtrain)
+
+    return None
+
+
+def drawTreePlot(treeModel, Xtrain):
     plt.figure(dpi=170, figsize=(16, 10))
     plot_tree(treeModel, filled=True, rounded=True, max_depth=4, feature_names=Xtrain.columns)
     plt.show()
-
-    drawResidualsPlot(treeModel, Xtrain, yTrain)
-
-    return None
 
 
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
@@ -145,8 +149,14 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
     print("R^2 score on train set: {:.3f}".format(r2_train))
     print("R^2 score on test set: {:.3f}".format(r2_test))
 
-    # Visualize top 6 feature importance
-    feature_importances = forestModel.feature_importances_
+    drawResidualsPlot(forestModel, Xtrain, yTrain)
+    drawTop6FeatureImportance(forestModel, Xtrain)
+
+    return None
+
+
+def drawTop6FeatureImportance(model, Xtrain):
+    feature_importances = model.feature_importances_
     sorted_idx = feature_importances.argsort()[-6:]
     y_ticks = np.arange(0, len(sorted_idx))
     fig, ax = plt.subplots()
@@ -155,8 +165,6 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
     ax.set_yticks(y_ticks)
     ax.set_title("Random Forest Feature Importances (Top 6)")
     plt.show()
-
-    drawResidualsPlot(forestModel, Xtrain, yTrain)
 
     return None
 
@@ -173,7 +181,8 @@ def trainSVM(Xtrain, Xtest, yTrain, yTest):
     print("R^2 score on train set: {:.3f}".format(r2_train))
     print("R^2 score on test set: {:.3f}".format(r2_test))
 
-    # drawResidualsPlot(svmModel, Xtrain, yTrain)
+    drawResidualsPlot(svmModel, Xtrain, yTrain)
+    # drawTop6FeatureImportance(svmModel, Xtrain)
     return None
 
 
@@ -188,6 +197,6 @@ def drawResidualsPlot(model, Xtrain, yTrain):
 # Results --------------------------------------------------------------------------------------------------------------
 df, X_train, X_test, y_train, y_test = prepareData(df)
 
-# trainDecisionTree(X_train, X_test, y_train, y_test)
-# trainEnsembleModels(X_train, X_test, y_train, y_test)
+trainDecisionTree(X_train, X_test, y_train, y_test)
+trainEnsembleModels(X_train, X_test, y_train, y_test)
 trainSVM(X_train, X_test, y_train, y_test)
