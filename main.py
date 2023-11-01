@@ -151,6 +151,13 @@ def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
 
 
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
+    if mode == 'PCA':
+        pca = PCA(n_components=0.98)
+        Xtrain = pca.fit_transform(Xtrain)
+        Xtest = pca.transform(Xtest)
+        Xtrain = pd.DataFrame(Xtrain)
+        Xtest = pd.DataFrame(Xtest)
+
     forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
     forestModel.fit(Xtrain, yTrain)
 
@@ -190,6 +197,8 @@ def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest, mode):
         print(f"{model_name} (correlation matrix):")
     elif mode == 'topFeatures':
         print(f"{model_name} (top features):")
+    elif mode == 'PCA':
+        print(f"{model_name} (PCA):")
     else:
         print(f"{model_name} (basic dataset):")
     table = [
@@ -211,6 +220,8 @@ def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest, mode):
         visualizer.title = f"Residuals for {model_name} (correlation matrix)"
     elif mode == 'topFeatures':
         visualizer.title = f"Residuals for {model_name} (top features)"
+    elif mode == 'PCA':
+        visualizer.title = f"Residuals for {model_name} (PCA)"
     visualizer.fit(Xtrain, np.array(yTrain).ravel())
     visualizer.score(Xtest, np.array(yTest).ravel())
     visualizer.show()
@@ -229,10 +240,14 @@ def drawTop10FeatureImportance(model, Xtrain, mode):
     ax.set_yticks(y_ticks)
     plt.yticks(rotation=65)
     ax.set_yticklabels(Xtrain.columns[sorted_idx])
-    if mode == 'correlationMatrix' or mode == 'topFeatures':
-        ax.set_title(f"{model_name} Feature Importances (Top 5)")
+    if mode == 'correlationMatrix':
+        ax.set_title(f"{model_name} Feature Importances (Correlation Matrix)")
+    elif mode == 'topFeatures':
+        ax.set_title(f"{model_name} Feature Importances (Top Features)")
+    elif mode == 'PCA':
+        ax.set_title(f"{model_name} Feature Importances (PCA)")
     else:
-        ax.set_title(f"{model_name} Feature Importances (Top 10)")
+        ax.set_title(f"{model_name} Feature Importances (Basic Dataset)")
     plt.show()
 
     return None
@@ -320,19 +335,6 @@ def createCorrelationHeatmaps(dframe):
     return None
 
 
-def trainOnSubsets(dframe):
-    # dframe, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
-    # forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
-    # forestModel.fit(Xtrain, yTrain)
-    #
-    # drawTop10FeatureImportance(forestModel, Xtrain)
-    #
-    # drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest)
-    # consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest)
-
-    return None
-
-
 # Results --------------------------------------------------------------------------------------------------------------
 def firstPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
@@ -352,15 +354,18 @@ def secondPart(dframe):
 
 
 def thirdPart(dframe):
-    dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
-    trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
+    # dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
+    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
+    #
+    # dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe)
+    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
 
-    dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe, 'topFeatures')
-    trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
+    dframe_pca, X_train, X_test, y_train, y_test = prepareData(dframe, 'PCA')
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'PCA')
 
     return None
 
 
-firstPart(df)
-secondPart(df)
+# firstPart(df)
+# secondPart(df)
 thirdPart(df)
