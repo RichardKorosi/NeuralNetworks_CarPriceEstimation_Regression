@@ -60,21 +60,21 @@ def handleTextToNumeric(dframe):
 
 
 def handleOutlierValues(dframe):
-    print("*" * 100, "Before removing outliers", "*" * 100)
-    print("-" * 10, "Min", "-" * 10)
-    print(dframe.min(numeric_only=True))
-    print("-" * 10, "Max", "-" * 10)
-    print(dframe.max(numeric_only=True))
+    # print("*" * 100, "Before removing outliers", "*" * 100)
+    # print("-" * 10, "Min", "-" * 10)
+    # print(dframe.min(numeric_only=True))
+    # print("-" * 10, "Max", "-" * 10)
+    # print(dframe.max(numeric_only=True))
 
     dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 85000)]
     dframe = dframe[(dframe['Mileage'] >= 0) & (dframe['Mileage'] <= 500000)]
     dframe = dframe[(dframe['Engine volume'] >= 0) & (dframe['Engine volume'] <= 4.5)]
 
-    print("*" * 100, "After removing outliers", "*" * 100)
-    print("-" * 10, "Min", "-" * 10)
-    print(dframe.min(numeric_only=True))
-    print("-" * 10, "Max", "-" * 10)
-    print(dframe.max(numeric_only=True))
+    # print("*" * 100, "After removing outliers", "*" * 100)
+    # print("-" * 10, "Min", "-" * 10)
+    # print(dframe.min(numeric_only=True))
+    # print("-" * 10, "Max", "-" * 10)
+    # print(dframe.max(numeric_only=True))
     return dframe
 
 
@@ -93,10 +93,13 @@ def createTrainTestSplit(dframe, mode):
     X = dframe.drop(['Price'], axis=1)
     y = dframe[['Price']]
 
-    XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.1, random_state=42)
+    if mode == 'correlationMatrix':
+        X = X[['Prod. year', 'Category_Jeep', 'Leather interior', 'FuelType_Diesel', 'Mileage']]
 
-    if mode != 'normalization':
-        return XTrain, XTest, yTrain, yTest
+    if mode == 'topFeatures':
+        X = X[['Prod. year', 'Engine volume', 'FuelType_Diesel', 'Airbags', 'Gearbox_Automatic']]
+
+    XTrain, XTest, yTrain, yTest = train_test_split(X, y, test_size=0.1, random_state=42)
 
     minMaxScaler = MinMaxScaler()
     XTrain = minMaxScaler.fit_transform(XTrain)
@@ -108,7 +111,7 @@ def createTrainTestSplit(dframe, mode):
     return XTrain, XTest, yTrain, yTest
 
 
-def prepareData(dframe, mode='normalization'):
+def prepareData(dframe, mode='normal'):
     dframe = handleIdentifierColumns(dframe)
     dframe = handleUselessColumns(dframe)
     dframe = handleNullValues(dframe)
@@ -116,6 +119,7 @@ def prepareData(dframe, mode='normalization'):
     dframe = handleTextToNumeric(dframe)
     dframe = handleOutlierValues(dframe)
     dframe = handleCategoricalValues(dframe)
+
     XTrain, XTest, yTrain, yYest = createTrainTestSplit(dframe, mode)
 
     return dframe, XTrain, XTest, yTrain, yYest
@@ -124,43 +128,49 @@ def prepareData(dframe, mode='normalization'):
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Decision Tree, Forest, SVM -------------------------------------------------------------------------------------------
 
-def trainDecisionTree(Xtrain, Xtest, yTrain, yTest):
+def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     treeModel = dtr(max_depth=6, random_state=71)
     treeModel.fit(Xtrain, yTrain)
 
     drawTreePlot(treeModel, Xtrain, 3)
-    drawTop10FeatureImportance(treeModel, Xtrain)
+    drawTop10FeatureImportance(treeModel, Xtrain, mode)
 
-    drawResidualsPlot(treeModel, Xtrain, Xtest, yTrain, yTest)
-    consolePrintTestResults(treeModel, Xtrain, Xtest, yTrain, yTest)
-
-    return None
-
-
-def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest):
-    forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
-    forestModel.fit(Xtrain, yTrain)
-
-    drawTop10FeatureImportance(forestModel, Xtrain)
-
-    drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest)
-    consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest)
+    drawResidualsPlot(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
+    consolePrintTestResults(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
 
     return None
 
 
-def trainSVM(Xtrain, Xtest, yTrain, yTest):
+def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     svmModel = SVR(kernel='rbf', C=100000, gamma=0.1)
     svmModel.fit(Xtrain, yTrain)
 
-    consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest)
-    drawResidualsPlot(svmModel, Xtrain, Xtest, yTrain, yTest)
+    consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
+    drawResidualsPlot(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
+    return None
+
+
+def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
+    forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
+    forestModel.fit(Xtrain, yTrain)
+
+    drawTop10FeatureImportance(forestModel, Xtrain, mode)
+
+    drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
+    consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
+
     return None
 
 
 # Visualizations for Decision Tree, Forest, SVM ------------------------------------------------------------------------
 
-def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest):
+def drawTreePlot(treeModel, Xtrain, maxDepth):
+    plt.figure(dpi=150, figsize=(16, 10))
+    plot_tree(treeModel, filled=True, rounded=True, max_depth=maxDepth, feature_names=Xtrain.columns)
+    plt.show()
+
+
+def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest, mode):
     y_pred_train = model.predict(Xtrain)
     y_pred_test = model.predict(Xtest)
 
@@ -176,7 +186,12 @@ def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest):
     model_name = type(model).__name__
 
     print("-" * 50)
-    print(f"{model_name}:")
+    if mode == 'correlationMatrix':
+        print(f"{model_name} (correlation matrix):")
+    elif mode == 'topFeatures':
+        print(f"{model_name} (top features):")
+    else:
+        print(f"{model_name} (basic dataset):")
     table = [
         ["R^2 score", f"{r2_train:.3f}", f"{r2_test:.3f}"],
         ["MSE", f"{mse_train:.3f}", f"{mse_test:.3f}"],
@@ -189,15 +204,13 @@ def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest):
     return None
 
 
-def drawTreePlot(treeModel, Xtrain, maxDepth):
-    plt.figure(dpi=150, figsize=(16, 10))
-    plot_tree(treeModel, filled=True, rounded=True, max_depth=maxDepth, feature_names=Xtrain.columns)
-    plt.show()
-
-
-def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest):
+def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest, mode):
     visualizer = ResidualsPlot(model)
-
+    model_name = type(model).__name__
+    if mode == 'correlationMatrix':
+        visualizer.title = f"Residuals for {model_name} (correlation matrix)"
+    elif mode == 'topFeatures':
+        visualizer.title = f"Residuals for {model_name} (top features)"
     visualizer.fit(Xtrain, np.array(yTrain).ravel())
     visualizer.score(Xtest, np.array(yTest).ravel())
     visualizer.show()
@@ -205,17 +218,21 @@ def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest):
     return None
 
 
-def drawTop10FeatureImportance(model, Xtrain):
+def drawTop10FeatureImportance(model, Xtrain, mode):
     feature_importances = model.feature_importances_
+    model_name = type(model).__name__
     sorted_idx = feature_importances.argsort()[-10:]
     plt.figure(figsize=(20, 10))
     y_ticks = np.arange(0, len(sorted_idx))
     fig, ax = plt.subplots()
     ax.barh(y_ticks, feature_importances[sorted_idx])
     ax.set_yticks(y_ticks)
-    plt.yticks(rotation=45)
+    plt.yticks(rotation=65)
     ax.set_yticklabels(Xtrain.columns[sorted_idx])
-    ax.set_title("Random Forest Feature Importances (Top 10)")
+    if mode == 'correlationMatrix' or mode == 'topFeatures':
+        ax.set_title(f"{model_name} Feature Importances (Top 5)")
+    else:
+        ax.set_title(f"{model_name} Feature Importances (Top 10)")
     plt.show()
 
     return None
@@ -266,7 +283,7 @@ def show3featuresPCA(XTrain, yTrain, target):
     return None
 
 
-def dFrameShow3featuresPCA(dframe, target):
+def dfShow3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
@@ -293,23 +310,57 @@ def dFrameShow3featuresPCA(dframe, target):
 def createCorrelationHeatmaps(dframe):
     # This function was developed and modified with the help of ChatGPT and GithubCopilot (see SOURCES TO CODES)
 
+    sns.set(font_scale=1)
     correlation_matrix = dframe.corr()
-    plt.figure(figsize=(25, 25))
-    sns.heatmap(correlation_matrix, annot=True, cmap='viridis', fmt=".2f", annot_kws={"size": 13})
-    plt.title('Correlation Matrix', fontsize=20)  # Increase title font size
-    plt.rcParams.update({'font.size': 13})
+    plt.figure(figsize=(15, 17))
+    sns.heatmap(correlation_matrix, annot=True, cmap='viridis', fmt=".2f", annot_kws={"size": 8})
+    plt.title('Correlation Matrix', fontsize=20)
     plt.show()
 
     return None
 
 
-# Results --------------------------------------------------------------------------------------------------------------
-df, X_train, X_test, y_train, y_test = prepareData(df)
-# trainDecisionTree(X_train, X_test, y_train, y_test)
-trainEnsembleModels(X_train, X_test, y_train, y_test)
-# trainSVM(X_train, X_test, y_train, y_test)
+def trainOnSubsets(dframe):
+    # dframe, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
+    # forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
+    # forestModel.fit(Xtrain, yTrain)
+    #
+    # drawTop10FeatureImportance(forestModel, Xtrain)
+    #
+    # drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest)
+    # consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest)
 
-# show3features(df, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
-# show3featuresPCA(X_train, y_train, 'Price')
-# dFrameShow3featuresPCA(df, 'Price')
-createCorrelationHeatmaps(df)
+    return None
+
+
+# Results --------------------------------------------------------------------------------------------------------------
+def firstPart(dframe):
+    dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
+
+    trainDecisionTree(X_train, X_test, y_train, y_test)
+    trainEnsembleModels(X_train, X_test, y_train, y_test)
+    trainSVM(X_train, X_test, y_train, y_test)
+    return None
+
+
+def secondPart(dframe):
+    dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
+
+    show3features(dframe, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
+    # show3featuresPCA(X_train, y_train, 'Price')
+    dfShow3featuresPCA(dframe, 'Price')
+
+
+def thirdPart(dframe):
+    dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
+
+    dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe, 'topFeatures')
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
+
+    return None
+
+
+firstPart(df)
+secondPart(df)
+thirdPart(df)
