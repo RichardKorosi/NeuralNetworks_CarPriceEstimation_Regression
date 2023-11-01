@@ -159,7 +159,7 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
         Xtest = pd.DataFrame(Xtest)
 
     forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
-    forestModel.fit(Xtrain, yTrain)
+    forestModel.fit(Xtrain, np.array(yTrain).ravel())
 
     drawTop10FeatureImportance(forestModel, Xtrain, mode)
 
@@ -339,9 +339,9 @@ def createCorrelationHeatmaps(dframe):
 def firstPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
-    trainDecisionTree(X_train, X_test, y_train, y_test)
+    # trainDecisionTree(X_train, X_test, y_train, y_test)
     trainEnsembleModels(X_train, X_test, y_train, y_test)
-    trainSVM(X_train, X_test, y_train, y_test)
+    # trainSVM(X_train, X_test, y_train, y_test)
     return None
 
 
@@ -354,11 +354,11 @@ def secondPart(dframe):
 
 
 def thirdPart(dframe):
-    # dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
-    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
-    #
-    # dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe)
-    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
+    dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
+
+    dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe)
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
 
     dframe_pca, X_train, X_test, y_train, y_test = prepareData(dframe, 'PCA')
     trainEnsembleModels(X_train, X_test, y_train, y_test, 'PCA')
@@ -366,6 +366,6 @@ def thirdPart(dframe):
     return None
 
 
-# firstPart(df)
+firstPart(df)
 # secondPart(df)
-thirdPart(df)
+# thirdPart(df)
