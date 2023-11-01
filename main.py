@@ -40,7 +40,15 @@ def handleUselessColumns(dframe):
 
 
 def handleNullValues(dframe):
+    print("*" * 100, "Missing values", "*" * 100)
+    print(f"Length of dataset: {len(dframe)}")
+    print(dframe.isnull().sum())
+
     dframe = dframe.drop(['Levy'], axis=1)
+
+    print("*" * 100, "Missing values after removing them", "*" * 100)
+    print(f"Length of dataset: {len(dframe)}")
+    print(dframe.isnull().sum())
     return dframe
 
 
@@ -60,31 +68,36 @@ def handleTextToNumeric(dframe):
 
 
 def handleOutlierValues(dframe):
-    # print("*" * 100, "Before removing outliers", "*" * 100)
-    # print("-" * 10, "Min", "-" * 10)
-    # print(dframe.min(numeric_only=True))
-    # print("-" * 10, "Max", "-" * 10)
-    # print(dframe.max(numeric_only=True))
+    print("*" * 100, "Before removing outliers", "*" * 100)
+    print("-" * 10, "Min", "-" * 10)
+    print(dframe.min(numeric_only=True))
+    print("-" * 10, "Max", "-" * 10)
+    print(dframe.max(numeric_only=True))
 
     dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 85000)]
     dframe = dframe[(dframe['Mileage'] >= 0) & (dframe['Mileage'] <= 500000)]
     dframe = dframe[(dframe['Engine volume'] >= 0) & (dframe['Engine volume'] <= 4.5)]
 
-    # print("*" * 100, "After removing outliers", "*" * 100)
-    # print("-" * 10, "Min", "-" * 10)
-    # print(dframe.min(numeric_only=True))
-    # print("-" * 10, "Max", "-" * 10)
-    # print(dframe.max(numeric_only=True))
+    print("*" * 100, "After removing outliers", "*" * 100)
+    print("-" * 10, "Min", "-" * 10)
+    print(dframe.min(numeric_only=True))
+    print("-" * 10, "Max", "-" * 10)
+    print(dframe.max(numeric_only=True))
     return dframe
 
 
 def handleCategoricalValues(dframe):
-    # label encode column Doors
+    print("*" * 100, "Column types", "*" * 100)
+    print(dframe.dtypes)
+
     dframe['Doors'] = dframe['Doors'].map({'2-3': 1, '4-5': 2, '>5': 3})
     dframe = pd.get_dummies(dframe, columns=['Category'], prefix='Category_', prefix_sep='')
     dframe = pd.get_dummies(dframe, columns=['Fuel type'], prefix='FuelType_', prefix_sep='')
     dframe = pd.get_dummies(dframe, columns=['Gear box type'], prefix='Gearbox_', prefix_sep='')
     dframe = pd.get_dummies(dframe, columns=['Drive wheels'], prefix='Drive_', prefix_sep='')
+
+    print("*" * 100, "Column types", "*" * 100)
+    print(dframe.dtypes)
 
     return dframe
 
@@ -340,7 +353,7 @@ def firstPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
     # trainDecisionTree(X_train, X_test, y_train, y_test)
-    trainEnsembleModels(X_train, X_test, y_train, y_test)
+    # trainEnsembleModels(X_train, X_test, y_train, y_test)
     # trainSVM(X_train, X_test, y_train, y_test)
     return None
 
