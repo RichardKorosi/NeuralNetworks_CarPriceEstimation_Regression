@@ -109,7 +109,7 @@ def handleOutlierValues(dframe):
 
 def handleCategoricalValues(dframe):
     # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
-    # Tato funkcia bola vypracovana za pomoci Github Copilota
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     print("*" * 100, "Column types", "*" * 100)
     print(dframe.dtypes)
 
@@ -178,15 +178,6 @@ def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     return None
 
 
-def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
-    svmModel = SVR(kernel='rbf', C=10000, gamma=0.3)
-    svmModel.fit(Xtrain, yTrain)
-
-    consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
-    drawResidualsPlot(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
-    return None
-
-
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     if mode == 'PCA':
         pca = PCA(n_components=0.98)
@@ -206,15 +197,27 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     return None
 
 
+def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
+    svmModel = SVR(kernel='rbf', C=10000, gamma=0.3)
+    svmModel.fit(Xtrain, yTrain)
+
+    consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
+    drawResidualsPlot(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
+    return None
+
+
+
 # Visualizations for Decision Tree, Forest, SVM ------------------------------------------------------------------------
 
 def drawTreePlot(treeModel, Xtrain, maxDepth):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     plt.figure(dpi=150, figsize=(16, 10))
     plot_tree(treeModel, filled=True, rounded=True, max_depth=maxDepth, feature_names=Xtrain.columns)
     plt.show()
 
 
 def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest, mode):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     y_pred_train = model.predict(Xtrain)
     y_pred_test = model.predict(Xtest)
 
@@ -251,6 +254,7 @@ def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest, mode):
 
 
 def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest, mode):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     visualizer = ResidualsPlot(model)
     model_name = type(model).__name__
     if mode == 'correlationMatrix':
@@ -267,6 +271,7 @@ def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest, mode):
 
 
 def drawTop10FeatureImportance(model, Xtrain, mode):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     feature_importances = model.feature_importances_
     model_name = type(model).__name__
     sorted_idx = feature_importances.argsort()[-10:]
@@ -294,6 +299,7 @@ def drawTop10FeatureImportance(model, Xtrain, mode):
 # Reduction of dimensions ----------------------------------------------------------------------------------------------
 
 def show3features(dframe, feature1, feature2, feature3, target):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
 
@@ -311,6 +317,7 @@ def show3features(dframe, feature1, feature2, feature3, target):
 
 
 def show3featuresPCA(dframe, target):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
@@ -351,8 +358,8 @@ def createCorrelationHeatmaps(dframe):
 def firstPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
-    # trainDecisionTree(X_train, X_test, y_train, y_test)
-    # trainEnsembleModels(X_train, X_test, y_train, y_test)
+    trainDecisionTree(X_train, X_test, y_train, y_test)
+    trainEnsembleModels(X_train, X_test, y_train, y_test)
     trainSVM(X_train, X_test, y_train, y_test)
     return None
 
