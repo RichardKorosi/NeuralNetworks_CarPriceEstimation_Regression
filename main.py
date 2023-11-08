@@ -14,6 +14,25 @@ from yellowbrick.regressor import ResidualsPlot
 from tabulate import tabulate
 from sklearn.decomposition import PCA
 
+
+# ZDROJE KU KODOM ------------------------------------------------------------------------------------------------------
+# ======================================================================================================================
+# Zdrojove kody z cviceni (dostupne na dokumentovom serveri AIS):
+#   Autor: Ing. Vanesa Andicsová
+#   Subory:
+#       seminar2.py
+# Zdrojove kody boli vyuzite napriklad pre vypisy do konzoly, vytvorenie zakladnych grafov,
+# ktore sme mali za ulohu  vypracovat
+# Taktiez kody boli vyuzite pri zakladnom nastavovani vstupnych/vystupnych dat (X,y) a pri zakladnom nastavovani modelu
+# ======================================================================================================================
+# Grafy, Pomocne funkcie...:
+#  Autor: Github Copilot
+#  Grafy, pomocne funkcie  boli vypracoavane za pomoci Github Copilota
+# ======================================================================================================================
+
+
+# Uvod -----------------------------------------------------------------------------------------------------------------
+# Uvod bol inspirovany zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
 pd.options.display.width = None
 pd.options.display.max_columns = None
 pd.set_option('display.max_rows', 3000)
@@ -24,7 +43,7 @@ pd.set_option('mode.chained_assignment', None)
 df = pd.read_csv('./data/zadanie2_dataset.csv')
 
 
-# Functions ------------------------------------------------------------------------------------------------------------
+# Funkcie ------------------------------------------------------------------------------------------------------------
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Prepare DATA ---------------------------------------------------------------------------------------------------------
@@ -40,6 +59,7 @@ def handleUselessColumns(dframe):
 
 
 def handleNullValues(dframe):
+    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
     print("*" * 100, "Missing values", "*" * 100)
     print(f"Length of dataset: {len(dframe)}")
     print(dframe.isnull().sum())
@@ -68,6 +88,7 @@ def handleTextToNumeric(dframe):
 
 
 def handleOutlierValues(dframe):
+    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
     print("*" * 100, "Before removing outliers", "*" * 100)
     print("-" * 10, "Min", "-" * 10)
     print(dframe.min(numeric_only=True))
@@ -87,6 +108,8 @@ def handleOutlierValues(dframe):
 
 
 def handleCategoricalValues(dframe):
+    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
+    # Tato funkcia bola vypracovana za pomoci Github Copilota
     print("*" * 100, "Column types", "*" * 100)
     print(dframe.dtypes)
 
@@ -103,6 +126,7 @@ def handleCategoricalValues(dframe):
 
 
 def createTrainTestSplit(dframe, mode):
+    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
     X = dframe.drop(['Price'], axis=1)
     y = dframe[['Price']]
 
@@ -286,32 +310,7 @@ def show3features(dframe, feature1, feature2, feature3, target):
     return None
 
 
-def show3featuresPCA(XTrain, yTrain, target):
-    # Working only with 90% of data (train set), because they are already normalized
-    X = XTrain
-    y = yTrain
-
-    pca = PCA(n_components=3)
-    X_pca = pca.fit_transform(X)
-    print("Variance of each component:", pca.explained_variance_ * 100)
-    print("Nieco PCA:", pca.explained_variance_ratio_)
-
-    # Create the 3D scatter plot
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 0], X_pca[:, 1], X_pca[:, 2], c=y, cmap='viridis')
-
-    ax.set_xlabel("Principal Component 1")
-    ax.set_ylabel("Principal Component 2")
-    ax.set_zlabel("Principal Component 3")
-
-    fig.colorbar(scatter, label=target)
-    plt.show()
-
-    return None
-
-
-def dfShow3featuresPCA(dframe, target):
+def show3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
@@ -362,8 +361,7 @@ def secondPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
     show3features(dframe, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
-    # show3featuresPCA(X_train, y_train, 'Price')
-    dfShow3featuresPCA(dframe, 'Price')
+    show3featuresPCA(dframe, 'Price')
 
 
 def thirdPart(dframe):
