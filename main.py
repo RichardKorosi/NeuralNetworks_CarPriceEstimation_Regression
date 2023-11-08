@@ -155,7 +155,7 @@ def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
 
 
 def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
-    svmModel = SVR(kernel='rbf', C=100000, gamma=0.1)
+    svmModel = SVR(kernel='rbf', C=10000, gamma=0.3)
     svmModel.fit(Xtrain, yTrain)
 
     consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
@@ -354,7 +354,7 @@ def firstPart(dframe):
 
     # trainDecisionTree(X_train, X_test, y_train, y_test)
     # trainEnsembleModels(X_train, X_test, y_train, y_test)
-    # trainSVM(X_train, X_test, y_train, y_test)
+    trainSVM(X_train, X_test, y_train, y_test)
     return None
 
 
@@ -380,5 +380,5 @@ def thirdPart(dframe):
 
 
 firstPart(df)
-# secondPart(df)
-# thirdPart(df)
+secondPart(df)
+thirdPart(df)
