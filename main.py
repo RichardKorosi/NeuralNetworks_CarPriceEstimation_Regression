@@ -66,7 +66,7 @@ def handleNullValues(dframe):
 
     dframe = dframe.drop(['Levy'], axis=1)
 
-    print("*" * 100, "Missing values after removing them", "*" * 100)
+    print("*" * 100, "Missing values in updated dataset", "*" * 100)
     print(f"Length of dataset: {len(dframe)}")
     print(dframe.isnull().sum())
     return dframe
