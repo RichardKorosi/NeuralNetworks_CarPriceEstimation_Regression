@@ -49,12 +49,12 @@ df = pd.read_csv('./data/zadanie2_dataset.csv')
 # Prepare DATA ---------------------------------------------------------------------------------------------------------
 
 def handleIdentifierColumns(dframe):
-    dframe = dframe.drop(['ID', 'Model', 'Manufacturer'], axis=1)
+    dframe = dframe.drop(['ID'], axis=1)
     return dframe
 
 
 def handleUselessColumns(dframe):
-    dframe = dframe.drop(['Left wheel', 'Color'], axis=1)
+    dframe = dframe.drop(['Left wheel', 'Color', 'Model', 'Manufacturer'], axis=1)
     return dframe
 
 
