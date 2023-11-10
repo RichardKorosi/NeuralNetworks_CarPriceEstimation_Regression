@@ -4,6 +4,7 @@ import seaborn as sns
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor as dtr
 from sklearn.tree import plot_tree
 from sklearn.metrics import r2_score
@@ -13,7 +14,6 @@ from sklearn.metrics import mean_squared_error
 from yellowbrick.regressor import ResidualsPlot
 from tabulate import tabulate
 from sklearn.decomposition import PCA
-
 
 # ZDROJE KU KODOM ------------------------------------------------------------------------------------------------------
 # ======================================================================================================================
@@ -59,16 +59,7 @@ def handleUselessColumns(dframe):
 
 
 def handleNullValues(dframe):
-    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
-    print("*" * 100, "Missing values", "*" * 100)
-    print(f"Length of dataset: {len(dframe)}")
-    print(dframe.isnull().sum())
-
     dframe = dframe.drop(['Levy'], axis=1)
-
-    print("*" * 100, "Missing values in updated dataset", "*" * 100)
-    print(f"Length of dataset: {len(dframe)}")
-    print(dframe.isnull().sum())
     return dframe
 
 
@@ -77,51 +68,50 @@ def handleDuplicateValues(dframe):
     return dframe
 
 
-def handleTextToNumeric(dframe):
-    dframe['Mileage'] = dframe['Mileage'].str.split(' ').str[0]
-    dframe['Leather interior'] = dframe['Leather interior'].map({'Yes': 1.0, 'No': 0.0})
-
-    for col in ['Engine volume', 'Turbo engine', 'Mileage']:
-        dframe[col] = dframe[col].astype(float)
-
+def handleTextToNumericBool(dframe):
+    dframe['Mileage'] = dframe['Mileage'].str.split(' ').str[0].astype(float)
+    dframe['Leather interior'] = dframe['Leather interior'].map({'Yes': True, 'No': False})
     return dframe
 
 
 def handleOutlierValues(dframe):
-    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
-    print("*" * 100, "Before removing outliers", "*" * 100)
-    print("-" * 10, "Min", "-" * 10)
-    print(dframe.min(numeric_only=True))
-    print("-" * 10, "Max", "-" * 10)
-    print(dframe.max(numeric_only=True))
+    columns = ['Price', 'Prod. year', 'Engine volume', 'Mileage', 'Airbags', 'Cylinders']
+    print("*" * 37, "Before removing outliers", "*" * 38)
+    min_values_before = dframe[columns].min(numeric_only=True)
+    max_values_before = dframe[columns].max(numeric_only=True)
+
+    # Create table for min and max values before handling outliers
+    table_before = [
+        ["Min values"] + min_values_before.tolist(),
+        ["Max values"] + max_values_before.tolist()
+    ]
+    print(tabulate(table_before, headers=[""] + min_values_before.index.tolist(), tablefmt='fancy_grid'))
 
     dframe = dframe[(dframe['Price'] >= 800) & (dframe['Price'] <= 85000)]
     dframe = dframe[(dframe['Mileage'] >= 0) & (dframe['Mileage'] <= 500000)]
     dframe = dframe[(dframe['Engine volume'] >= 0) & (dframe['Engine volume'] <= 4.5)]
 
-    print("*" * 100, "After removing outliers", "*" * 100)
-    print("-" * 10, "Min", "-" * 10)
-    print(dframe.min(numeric_only=True))
-    print("-" * 10, "Max", "-" * 10)
-    print(dframe.max(numeric_only=True))
+    print("*" * 34, "After removing outliers", "*" * 36)
+    min_values_after = dframe[columns].min(numeric_only=True)
+    max_values_after = dframe[columns].max(numeric_only=True)
+
+    # Create table for min and max values after handling outliers
+    table_after = [
+        ["Min values"] + min_values_after.tolist(),
+        ["Max values"] + max_values_after.tolist()
+    ]
+    print(tabulate(table_after, headers=[""] + min_values_after.index.tolist(), tablefmt='fancy_grid'))
+
     return dframe
 
 
 def handleCategoricalValues(dframe):
-    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
     # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
-    print("*" * 100, "Column types", "*" * 100)
-    print(dframe.dtypes)
-
     dframe['Doors'] = dframe['Doors'].map({'2-3': 1, '4-5': 2, '>5': 3})
     dframe = pd.get_dummies(dframe, columns=['Category'], prefix='Category_', prefix_sep='')
     dframe = pd.get_dummies(dframe, columns=['Fuel type'], prefix='FuelType_', prefix_sep='')
     dframe = pd.get_dummies(dframe, columns=['Gear box type'], prefix='Gearbox_', prefix_sep='')
     dframe = pd.get_dummies(dframe, columns=['Drive wheels'], prefix='Drive_', prefix_sep='')
-
-    print("*" * 100, "Column types", "*" * 100)
-    print(dframe.dtypes)
-
     return dframe
 
 
@@ -153,9 +143,9 @@ def prepareData(dframe, mode='normal'):
     dframe = handleUselessColumns(dframe)
     dframe = handleNullValues(dframe)
     dframe = handleDuplicateValues(dframe)
-    dframe = handleTextToNumeric(dframe)
-    dframe = handleOutlierValues(dframe)
+    dframe = handleTextToNumericBool(dframe)
     dframe = handleCategoricalValues(dframe)
+    dframe = handleOutlierValues(dframe)
 
     XTrain, XTest, yTrain, yYest = createTrainTestSplit(dframe, mode)
 
@@ -166,7 +156,7 @@ def prepareData(dframe, mode='normal'):
 # Decision Tree, Forest, SVM -------------------------------------------------------------------------------------------
 
 def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
-    treeModel = dtr(max_depth=6, random_state=71)
+    treeModel = dtr(max_depth=3, random_state=71)
     treeModel.fit(Xtrain, yTrain)
 
     drawTreePlot(treeModel, Xtrain, 3)
@@ -189,7 +179,8 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
     forestModel.fit(Xtrain, np.array(yTrain).ravel())
 
-    drawTop10FeatureImportance(forestModel, Xtrain, mode)
+    if mode=='normal':
+        drawTop10FeatureImportance(forestModel, Xtrain, mode)
 
     drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
     consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
@@ -198,7 +189,7 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
 
 
 def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
-    svmModel = SVR(kernel='rbf', C=10000, gamma=0.3)
+    svmModel = SVR(kernel='rbf', C=9500, gamma=0.7)
     svmModel.fit(Xtrain, yTrain)
 
     consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
@@ -206,12 +197,11 @@ def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     return None
 
 
-
 # Visualizations for Decision Tree, Forest, SVM ------------------------------------------------------------------------
 
 def drawTreePlot(treeModel, Xtrain, maxDepth):
     # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
-    plt.figure(dpi=150, figsize=(16, 10))
+    plt.figure(dpi=350, figsize=(6, 6))
     plot_tree(treeModel, filled=True, rounded=True, max_depth=maxDepth, feature_names=Xtrain.columns)
     plt.show()
 
@@ -263,6 +253,8 @@ def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest, mode):
         visualizer.title = f"Residuals for {model_name} (top features)"
     elif mode == 'PCA':
         visualizer.title = f"Residuals for {model_name} (PCA)"
+    else:
+        visualizer.title = f"Residuals for {model_name} (basic dataset)"
     visualizer.fit(Xtrain, np.array(yTrain).ravel())
     visualizer.score(Xtest, np.array(yTest).ravel())
     visualizer.show()
@@ -300,7 +292,7 @@ def drawTop10FeatureImportance(model, Xtrain, mode):
 
 def show3features(dframe, feature1, feature2, feature3, target):
     # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(12, 12))
     ax = fig.add_subplot(111, projection='3d')
 
     scatter = ax.scatter(dframe[feature1], dframe[feature2], dframe[feature3], c=dframe[target], cmap='viridis')
@@ -321,7 +313,8 @@ def show3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
-    scaler = MinMaxScaler()
+    scaler = StandardScaler()
+
     X = scaler.fit_transform(X)
 
     pca = PCA(n_components=3)
@@ -338,6 +331,33 @@ def show3featuresPCA(dframe, target):
     fig.colorbar(scatter, label=target)
     plt.show()
 
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    scatter = ax.scatter(X_pca[:, 2], X_pca[:, 1], X_pca[:, 0], c=y, cmap='viridis')
+    ax.set_xlabel("Principal Component 3")
+    ax.set_ylabel("Principal Component 2")
+    ax.set_zlabel("Principal Component 1")
+    fig.colorbar(scatter, label=target)
+    plt.show()
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    scatter = ax.scatter(X_pca[:, 2], X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis')
+    ax.set_xlabel("Principal Component 3")
+    ax.set_ylabel("Principal Component 1")
+    ax.set_zlabel("Principal Component 2")
+    fig.colorbar(scatter, label=target)
+    plt.show()
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    scatter = ax.scatter(X_pca[:, 1], X_pca[:, 0], X_pca[:, 2], c=y, cmap='viridis')
+    ax.set_xlabel("Principal Component 2")
+    ax.set_ylabel("Principal Component 1")
+    ax.set_zlabel("Principal Component 3")
+    fig.colorbar(scatter, label=target)
+    plt.show()
+
     return None
 
 
@@ -346,7 +366,7 @@ def createCorrelationHeatmaps(dframe):
 
     sns.set(font_scale=1)
     correlation_matrix = dframe.corr()
-    plt.figure(figsize=(15, 17))
+    plt.figure(figsize=(20, 13))
     sns.heatmap(correlation_matrix, annot=True, cmap='viridis', fmt=".2f", annot_kws={"size": 8})
     plt.title('Correlation Matrix', fontsize=20)
     plt.show()
@@ -367,15 +387,19 @@ def firstPart(dframe):
 def secondPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
-    show3features(dframe, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
+    # show3features(dframe, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
+    # show3features(dframe, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
+    # show3features(dframe, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
+    # show3features(dframe, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
     show3featuresPCA(dframe, 'Price')
 
 
 def thirdPart(dframe):
     dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
+    createCorrelationHeatmaps(dframe_cor)
     trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
 
-    dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe)
+    dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe, 'topFeatures')
     trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
 
     dframe_pca, X_train, X_test, y_train, y_test = prepareData(dframe, 'PCA')
@@ -384,6 +408,6 @@ def thirdPart(dframe):
     return None
 
 
-firstPart(df)
+# firstPart(df)
 secondPart(df)
-thirdPart(df)
+# thirdPart(df)
