@@ -168,6 +168,9 @@ def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     return None
 
 
+from statsmodels.formula.api import ols
+
+
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     if mode == 'PCA':
         pca = PCA(n_components=0.98)
@@ -179,12 +182,11 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     forestModel = rfr(n_estimators=300, max_depth=7, random_state=71)
     forestModel.fit(Xtrain, np.array(yTrain).ravel())
 
-    if mode=='normal':
+    if mode == 'normal':
         drawTop10FeatureImportance(forestModel, Xtrain, mode)
 
     drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
     consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
-
     return None
 
 
@@ -385,13 +387,13 @@ def firstPart(dframe):
 
 
 def secondPart(dframe):
-    dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
+    dframeS, X_train, X_test, y_train, y_test = prepareData(dframe)
 
-    # show3features(dframe, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
-    # show3features(dframe, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
-    # show3features(dframe, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
-    # show3features(dframe, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
-    show3featuresPCA(dframe, 'Price')
+    show3features(dframeS, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
+    show3features(dframeS, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
+    show3features(dframeS, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
+    show3features(dframeS, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
+    show3featuresPCA(dframeS, 'Price')
 
 
 def thirdPart(dframe):
@@ -408,6 +410,6 @@ def thirdPart(dframe):
     return None
 
 
-# firstPart(df)
+firstPart(df)
 secondPart(df)
-# thirdPart(df)
+thirdPart(df)
