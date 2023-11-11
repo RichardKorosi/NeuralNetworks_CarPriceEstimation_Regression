@@ -156,10 +156,10 @@ def prepareData(dframe, mode='normal'):
 # Decision Tree, Forest, SVM -------------------------------------------------------------------------------------------
 
 def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
-    treeModel = dtr(max_depth=1, random_state=71)
+    treeModel = dtr(max_depth=3, random_state=71)
     treeModel.fit(Xtrain, yTrain)
 
-    drawTreePlot(treeModel, Xtrain, 1)
+    drawTreePlot(treeModel, Xtrain, 3)
     drawTop10FeatureImportance(treeModel, Xtrain, mode)
 
     drawResidualsPlot(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
