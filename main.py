@@ -156,10 +156,10 @@ def prepareData(dframe, mode='normal'):
 # Decision Tree, Forest, SVM -------------------------------------------------------------------------------------------
 
 def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
-    treeModel = dtr(max_depth=3, random_state=71)
+    treeModel = dtr(max_depth=1, random_state=71)
     treeModel.fit(Xtrain, yTrain)
 
-    drawTreePlot(treeModel, Xtrain, 3)
+    drawTreePlot(treeModel, Xtrain, 1)
     drawTop10FeatureImportance(treeModel, Xtrain, mode)
 
     drawResidualsPlot(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
@@ -315,11 +315,11 @@ def show3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
 
     X = scaler.fit_transform(X)
 
-    pca = PCA(n_components=3)
+    pca = PCA(n_components = 3)
     X_pca = pca.fit_transform(X)
     print("Variance of each component:", pca.explained_variance_ * 100)
     print("Nieco PCA:", pca.explained_variance_ratio_)
@@ -333,32 +333,32 @@ def show3featuresPCA(dframe, target):
     fig.colorbar(scatter, label=target)
     plt.show()
 
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 2], X_pca[:, 1], X_pca[:, 0], c=y, cmap='viridis')
-    ax.set_xlabel("Principal Component 3")
-    ax.set_ylabel("Principal Component 2")
-    ax.set_zlabel("Principal Component 1")
-    fig.colorbar(scatter, label=target)
-    plt.show()
+    # fig = plt.figure(figsize=(10, 10))
+    # ax = fig.add_subplot(111, projection='3d')
+    # scatter = ax.scatter(X_pca[:, 2], X_pca[:, 1], X_pca[:, 0], c=y, cmap='viridis')
+    # ax.set_xlabel("Principal Component 3")
+    # ax.set_ylabel("Principal Component 2")
+    # ax.set_zlabel("Principal Component 1")
+    # fig.colorbar(scatter, label=target)
+    # plt.show()
 
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 2], X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis')
-    ax.set_xlabel("Principal Component 3")
-    ax.set_ylabel("Principal Component 1")
-    ax.set_zlabel("Principal Component 2")
-    fig.colorbar(scatter, label=target)
-    plt.show()
+    # fig = plt.figure(figsize=(10, 10))
+    # ax = fig.add_subplot(111, projection='3d')
+    # scatter = ax.scatter(X_pca[:, 2], X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis')
+    # ax.set_xlabel("Principal Component 3")
+    # ax.set_ylabel("Principal Component 1")
+    # ax.set_zlabel("Principal Component 2")
+    # fig.colorbar(scatter, label=target)
+    # plt.show()
 
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 1], X_pca[:, 0], X_pca[:, 2], c=y, cmap='viridis')
-    ax.set_xlabel("Principal Component 2")
-    ax.set_ylabel("Principal Component 1")
-    ax.set_zlabel("Principal Component 3")
-    fig.colorbar(scatter, label=target)
-    plt.show()
+    # fig = plt.figure(figsize=(10, 10))
+    # ax = fig.add_subplot(111, projection='3d')
+    # scatter = ax.scatter(X_pca[:, 1], X_pca[:, 0], X_pca[:, 2], c=y, cmap='viridis')
+    # ax.set_xlabel("Principal Component 2")
+    # ax.set_ylabel("Principal Component 1")
+    # ax.set_zlabel("Principal Component 3")
+    # fig.colorbar(scatter, label=target)
+    # plt.show()
 
     return None
 
@@ -381,18 +381,18 @@ def firstPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
     trainDecisionTree(X_train, X_test, y_train, y_test)
-    trainEnsembleModels(X_train, X_test, y_train, y_test)
-    trainSVM(X_train, X_test, y_train, y_test)
+    # trainEnsembleModels(X_train, X_test, y_train, y_test)
+    # trainSVM(X_train, X_test, y_train, y_test)
     return None
 
 
 def secondPart(dframe):
     dframeS, X_train, X_test, y_train, y_test = prepareData(dframe)
 
-    show3features(dframeS, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
-    show3features(dframeS, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
-    show3features(dframeS, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
-    show3features(dframeS, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
+    # show3features(dframeS, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
+    # show3features(dframeS, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
+    # show3features(dframeS, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
+    # show3features(dframeS, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
     show3featuresPCA(dframeS, 'Price')
 
 
@@ -410,6 +410,6 @@ def thirdPart(dframe):
     return None
 
 
-firstPart(df)
+# firstPart(df)
 secondPart(df)
-thirdPart(df)
+# thirdPart(df)
