@@ -173,7 +173,7 @@ from statsmodels.formula.api import ols
 
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     if mode == 'PCA':
-        pca = PCA(n_components=0.98)
+        pca = PCA(n_components=0.98, svd_solver = 'full')
         Xtrain = pca.fit_transform(Xtrain)
         Xtest = pca.transform(Xtest)
         Xtrain = pd.DataFrame(Xtrain)
@@ -315,47 +315,24 @@ def show3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
+    # Store column names before scaling
+    column_names = X.columns
+
     scaler = MinMaxScaler()
 
     X = scaler.fit_transform(X)
 
-    pca = PCA(n_components = 3)
+    pca = PCA(n_components=3)
     X_pca = pca.fit_transform(X)
     print("Variance of each component:", pca.explained_variance_ * 100)
-    print("Nieco PCA:", pca.explained_variance_ratio_)
+    print("Variance ratio of each component:", pca.explained_variance_ratio_)
+    print("Sum of Variance ratios of three components:", pca.explained_variance_ratio_.sum())
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
     scatter = ax.scatter(X_pca[:, 0], X_pca[:, 1], X_pca[:, 2], c=y, cmap='viridis')
     ax.set_xlabel("Principal Component 1")
     ax.set_ylabel("Principal Component 2")
-    ax.set_zlabel("Principal Component 3")
-    fig.colorbar(scatter, label=target)
-    plt.show()
-
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 2], X_pca[:, 1], X_pca[:, 0], c=y, cmap='viridis')
-    ax.set_xlabel("Principal Component 3")
-    ax.set_ylabel("Principal Component 2")
-    ax.set_zlabel("Principal Component 1")
-    fig.colorbar(scatter, label=target)
-    plt.show()
-
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 2], X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis')
-    ax.set_xlabel("Principal Component 3")
-    ax.set_ylabel("Principal Component 1")
-    ax.set_zlabel("Principal Component 2")
-    fig.colorbar(scatter, label=target)
-    plt.show()
-
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    scatter = ax.scatter(X_pca[:, 1], X_pca[:, 0], X_pca[:, 2], c=y, cmap='viridis')
-    ax.set_xlabel("Principal Component 2")
-    ax.set_ylabel("Principal Component 1")
     ax.set_zlabel("Principal Component 3")
     fig.colorbar(scatter, label=target)
     plt.show()
