@@ -1,19 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import pandas as pd
+import seaborn as sns
+from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestRegressor as rfr
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, LabelEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor as dtr
 from sklearn.tree import plot_tree
-from sklearn.metrics import r2_score
-from sklearn.ensemble import RandomForestRegressor as rfr
-from sklearn.svm import SVR
-from sklearn.metrics import mean_squared_error
-from yellowbrick.regressor import ResidualsPlot
 from tabulate import tabulate
-from sklearn.decomposition import PCA
+from yellowbrick.regressor import ResidualsPlot
 
 # ZDROJE KU KODOM ------------------------------------------------------------------------------------------------------
 # ======================================================================================================================
@@ -168,12 +167,9 @@ def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     return None
 
 
-from statsmodels.formula.api import ols
-
-
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     if mode == 'PCA':
-        pca = PCA(n_components=0.98, svd_solver = 'full')
+        pca = PCA(n_components=0.75, svd_solver='full')
         Xtrain = pca.fit_transform(Xtrain)
         Xtest = pca.transform(Xtest)
         Xtrain = pd.DataFrame(Xtrain)
@@ -315,9 +311,6 @@ def show3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
-    # Store column names before scaling
-    column_names = X.columns
-
     scaler = MinMaxScaler()
 
     X = scaler.fit_transform(X)
@@ -341,7 +334,7 @@ def show3featuresPCA(dframe, target):
 
 
 def createCorrelationHeatmaps(dframe):
-    # This function was developed and modified with the help of ChatGPT and GithubCopilot (see SOURCES TO CODES)
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
 
     sns.set(font_scale=1)
     correlation_matrix = dframe.corr()
@@ -358,18 +351,18 @@ def firstPart(dframe):
     dframe, X_train, X_test, y_train, y_test = prepareData(dframe)
 
     trainDecisionTree(X_train, X_test, y_train, y_test)
-    # trainEnsembleModels(X_train, X_test, y_train, y_test)
-    # trainSVM(X_train, X_test, y_train, y_test)
+    trainEnsembleModels(X_train, X_test, y_train, y_test)
+    trainSVM(X_train, X_test, y_train, y_test)
     return None
 
 
 def secondPart(dframe):
     dframeS, X_train, X_test, y_train, y_test = prepareData(dframe)
 
-    # show3features(dframeS, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
-    # show3features(dframeS, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
-    # show3features(dframeS, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
-    # show3features(dframeS, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
+    show3features(dframeS, 'Prod. year', 'Mileage', 'Engine volume', 'Price')
+    show3features(dframeS, 'Prod. year', 'Engine volume', 'Mileage', 'Price')
+    show3features(dframeS, 'Engine volume', 'Mileage', 'Prod. year', 'Price')
+    show3features(dframeS, 'Mileage', 'Engine volume', 'Prod. year', 'Price')
     show3featuresPCA(dframeS, 'Price')
 
 
@@ -387,6 +380,6 @@ def thirdPart(dframe):
     return None
 
 
-# firstPart(df)
+firstPart(df)
 secondPart(df)
-# thirdPart(df)
+thirdPart(df)
