@@ -243,7 +243,7 @@ def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest, mode):
 
 def drawResidualsPlot(model, Xtrain, Xtest, yTrain, yTest, mode):
     # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
-    visualizer = ResidualsPlot(model)
+    visualizer = ResidualsPlot(model, train_color='g', test_color='red', hist=False)
     model_name = type(model).__name__
     if mode == 'correlationMatrix':
         visualizer.title = f"Residuals for {model_name} (correlation matrix)"
@@ -368,11 +368,11 @@ def secondPart(dframe):
 
 def thirdPart(dframe):
     dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
-    createCorrelationHeatmaps(dframe_cor)
-    trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
+    # createCorrelationHeatmaps(dframe_cor)
+    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
 
     dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe, 'topFeatures')
-    trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
+    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
 
     dframe_pca, X_train, X_test, y_train, y_test = prepareData(dframe, 'PCA')
     trainEnsembleModels(X_train, X_test, y_train, y_test, 'PCA')
@@ -380,6 +380,6 @@ def thirdPart(dframe):
     return None
 
 
-firstPart(df)
-secondPart(df)
+# firstPart(df)
+# secondPart(df)
 thirdPart(df)
