@@ -24,9 +24,9 @@ from yellowbrick.regressor import ResidualsPlot
 # ktore sme mali za ulohu  vypracovat
 # Taktiez kody boli vyuzite pri zakladnom nastavovani vstupnych/vystupnych dat (X,y) a pri zakladnom nastavovani modelu
 # ======================================================================================================================
-# Grafy, Pomocne funkcie...:
+# Grafy, Pomocne funkcie, Casti funkcii...:
 #  Autor: Github Copilot
-#  Grafy, pomocne funkcie  boli vypracoavane za pomoci Github Copilota
+#  Grafy, pomocne funkcie a casti funkcii boli vypracoavane za pomoci Github Copilota
 # ======================================================================================================================
 
 
@@ -68,12 +68,14 @@ def handleDuplicateValues(dframe):
 
 
 def handleTextToNumericBool(dframe):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     dframe['Mileage'] = dframe['Mileage'].str.split(' ').str[0].astype(float)
     dframe['Leather interior'] = dframe['Leather interior'].map({'Yes': True, 'No': False})
     return dframe
 
 
 def handleOutlierValues(dframe):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     columns = ['Price', 'Prod. year', 'Engine volume', 'Mileage', 'Airbags', 'Cylinders']
     print("*" * 37, "Before removing outliers", "*" * 38)
     min_values_before = dframe[columns].min(numeric_only=True)
@@ -285,6 +287,19 @@ def drawTop10FeatureImportance(model, Xtrain, mode):
     return None
 
 
+def createCorrelationHeatmaps(dframe):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
+
+    sns.set(font_scale=1)
+    correlation_matrix = dframe.corr()
+    plt.figure(figsize=(20, 13))
+    sns.heatmap(correlation_matrix, annot=True, cmap='viridis', fmt=".2f", annot_kws={"size": 8})
+    plt.title('Correlation Matrix', fontsize=20)
+    plt.show()
+
+    return None
+
+
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Reduction of dimensions ----------------------------------------------------------------------------------------------
 
@@ -317,9 +332,9 @@ def show3featuresPCA(dframe, target):
 
     pca = PCA(n_components=3)
     X_pca = pca.fit_transform(X)
-    print("Variance of each component:", pca.explained_variance_ * 100)
-    print("Variance ratio of each component:", pca.explained_variance_ratio_)
-    print("Sum of Variance ratios of three components:", pca.explained_variance_ratio_.sum())
+    # print("Variance of each component:", pca.explained_variance_ * 100)
+    # print("Variance ratio of each component:", pca.explained_variance_ratio_)
+    # print("Sum of Variance ratios of three components:", pca.explained_variance_ratio_.sum())
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
@@ -328,19 +343,6 @@ def show3featuresPCA(dframe, target):
     ax.set_ylabel("Principal Component 2")
     ax.set_zlabel("Principal Component 3")
     fig.colorbar(scatter, label=target)
-    plt.show()
-
-    return None
-
-
-def createCorrelationHeatmaps(dframe):
-    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
-
-    sns.set(font_scale=1)
-    correlation_matrix = dframe.corr()
-    plt.figure(figsize=(20, 13))
-    sns.heatmap(correlation_matrix, annot=True, cmap='viridis', fmt=".2f", annot_kws={"size": 8})
-    plt.title('Correlation Matrix', fontsize=20)
     plt.show()
 
     return None
@@ -368,11 +370,11 @@ def secondPart(dframe):
 
 def thirdPart(dframe):
     dframe_cor, X_train, X_test, y_train, y_test = prepareData(dframe, 'correlationMatrix')
-    # createCorrelationHeatmaps(dframe_cor)
-    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
+    createCorrelationHeatmaps(dframe_cor)
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'correlationMatrix')
 
     dframe_fea, X_train, X_test, y_train, y_test = prepareData(dframe, 'topFeatures')
-    # trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
+    trainEnsembleModels(X_train, X_test, y_train, y_test, 'topFeatures')
 
     dframe_pca, X_train, X_test, y_train, y_test = prepareData(dframe, 'PCA')
     trainEnsembleModels(X_train, X_test, y_train, y_test, 'PCA')
@@ -380,6 +382,6 @@ def thirdPart(dframe):
     return None
 
 
-# firstPart(df)
-# secondPart(df)
+firstPart(df)
+secondPart(df)
 thirdPart(df)
