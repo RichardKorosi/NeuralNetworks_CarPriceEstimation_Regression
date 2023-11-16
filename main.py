@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor as rfr
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor as dtr
 from sklearn.tree import plot_tree
@@ -326,15 +326,11 @@ def show3featuresPCA(dframe, target):
     X = dframe.drop([target], axis=1)
     y = dframe[target]
 
-    scaler = MinMaxScaler()
-
+    scaler = StandardScaler()
     X = scaler.fit_transform(X)
 
     pca = PCA(n_components=3)
     X_pca = pca.fit_transform(X)
-    # print("Variance of each component:", pca.explained_variance_ * 100)
-    # print("Variance ratio of each component:", pca.explained_variance_ratio_)
-    # print("Sum of Variance ratios of three components:", pca.explained_variance_ratio_.sum())
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111, projection='3d')
@@ -344,7 +340,7 @@ def show3featuresPCA(dframe, target):
     ax.set_zlabel("Principal Component 3")
     fig.colorbar(scatter, label=target)
     plt.show()
-
+    
     return None
 
 
