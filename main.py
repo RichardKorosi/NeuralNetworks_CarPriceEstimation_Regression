@@ -25,7 +25,7 @@ from yellowbrick.regressor import ResidualsPlot
 # Taktiez kody boli vyuzite pri zakladnom nastavovani vstupnych/vystupnych dat (X,y) a pri zakladnom nastavovani modelu
 # ======================================================================================================================
 # Grafy, Pomocne funkcie, Casti funkcii...:
-#  Autor: Github Copilot
+#  Autor/Spoluautor: Github Copilot
 #  Grafy, pomocne funkcie a casti funkcii boli vypracoavane za pomoci Github Copilota
 # ======================================================================================================================
 
@@ -164,12 +164,13 @@ def trainDecisionTree(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     drawTop10FeatureImportance(treeModel, Xtrain, mode)
 
     drawResidualsPlot(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
-    consolePrintTestResults(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
+    consolePrintResults(treeModel, Xtrain, Xtest, yTrain, yTest, mode)
 
     return None
 
 
 def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
+    # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     if mode == 'PCA':
         pca = PCA(n_components=0.75, svd_solver='full')
         Xtrain = pca.fit_transform(Xtrain)
@@ -184,7 +185,7 @@ def trainEnsembleModels(Xtrain, Xtest, yTrain, yTest, mode='normal'):
         drawTop10FeatureImportance(forestModel, Xtrain, mode)
 
     drawResidualsPlot(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
-    consolePrintTestResults(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
+    consolePrintResults(forestModel, Xtrain, Xtest, yTrain, yTest, mode)
     return None
 
 
@@ -192,7 +193,7 @@ def trainSVM(Xtrain, Xtest, yTrain, yTest, mode='normal'):
     svmModel = SVR(kernel='rbf', C=9500, gamma=0.7)
     svmModel.fit(Xtrain, yTrain)
 
-    consolePrintTestResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
+    consolePrintResults(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
     drawResidualsPlot(svmModel, Xtrain, Xtest, yTrain, yTest, mode)
     return None
 
@@ -206,7 +207,7 @@ def drawTreePlot(treeModel, Xtrain, maxDepth):
     plt.show()
 
 
-def consolePrintTestResults(model, Xtrain, Xtest, yTrain, yTest, mode):
+def consolePrintResults(model, Xtrain, Xtest, yTrain, yTest, mode):
     # Tato funkcia bola vypracovana za pomoci Github Copilota (vid. ZDROJE KU KODOM)
     y_pred_train = model.predict(Xtrain)
     y_pred_test = model.predict(Xtest)
