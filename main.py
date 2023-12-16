@@ -31,7 +31,7 @@ from yellowbrick.regressor import ResidualsPlot
 
 
 # Uvod -----------------------------------------------------------------------------------------------------------------
-# Uvod bol inspirovany zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
+# Uvod bol inspirovany zdrojovym kodom seminar2.py (vid. ZDROJE KU KODOM)
 pd.options.display.width = None
 pd.options.display.max_columns = None
 pd.set_option('display.max_rows', 3000)
@@ -117,7 +117,7 @@ def handleCategoricalValues(dframe):
 
 
 def createTrainTestSplit(dframe, mode):
-    # Tato funkcia bola inspirovana zdrojovim kodom seminar2.py (vid. ZDROJE KU KODOM)
+    # Tato funkcia bola inspirovana zdrojovym kodom seminar2.py (vid. ZDROJE KU KODOM)
     X = dframe.drop(['Price'], axis=1)
     y = dframe[['Price']]
 
